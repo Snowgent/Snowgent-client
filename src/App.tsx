@@ -1,5 +1,11 @@
-const App = () => {
-  return <div>Snowgent</div>;
-};
+import { Outlet } from 'react-router-dom';
 
-export default App;
+export default function App() {
+  return (
+    <div className="mobile-container">
+      <div className="mobile-content">
+        <Outlet />
+      </div>
+    </div>
+  );
+}
