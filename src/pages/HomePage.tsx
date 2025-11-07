@@ -6,7 +6,7 @@ const HomePage = () => {
   return (
     <div className="flex h-full flex-col items-center justify-center gap-8">
       <img src={logo} alt="Vite logo" className="h-40" />
-      <h1 className="text-6xl text-[#0D2D84]">Snowgent</h1>
+      <h1 className="text-6xl font-bold text-[#0D2D84]">Snowgent</h1>
       <button
         onClick={() => navigate('/onboarding')}
         className="cursor-pointer rounded-lg bg-blue-50 px-10 py-5 text-xl font-semibold text-[#0D2D84] hover:bg-blue-100"
