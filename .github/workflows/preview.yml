@@ -18,32 +18,39 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      # Setup Node with npm cache (package-lock.json)
+      - name: Setup Node (npm cache)
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: 'pnpm'
-          cache-dependency-path: 'pnpm-lock.yaml'
+      - name: Show versions
+        run: |
+          node -v
+          npm -v
 
-      - run: pnpm i --frozen-lockfile
+      - name: Install dependencies
+        run: npm ci
 
-      - run: pnpm run --if-present lint
-      - run: pnpm run --if-present typecheck
-      - run: pnpm run --if-present test -- --passWithNoTests
+      - name: Lint (if present)
+        run: npm run --if-present lint
 
-      - run: pnpm run build
+      - name: Typecheck (if present)
+        run: npm run --if-present typecheck
+
+      - name: Test (if present)
+        run: npm run --if-present test -- --passWithNoTests
+
+      - name: Build
+        run: npm run build
 
   vercel-preview:
     if: ${{ github.event.pull_request.head.repo.full_name == github.repository && !github.event.pull_request.draft }}
     needs: checks
     runs-on: ubuntu-latest
-    
+
     env:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -51,28 +58,35 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with: { node-version: 20 }
-      - uses: pnpm/action-setup@v4
-        with: { version: 9 }
-      - run: pnpm -v
-      - uses: actions/setup-node@v4
+      - name: Setup Node (npm cache)
+        uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'pnpm'
-          cache-dependency-path: 'pnpm-lock.yaml'
+          cache: 'npm'
+          cache-dependency-path: 'package-lock.json'
 
-      
+      - name: Show versions
+        run: |
+          node -v
+          npm -v
+
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
+
       - name: Pull Vercel Env (preview)
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+
       - name: Build Project Artifacts (prebuilt)
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: vercel build --token=${{ secrets.VERCEL_TOKEN }}
 
       - name: Deploy Preview
         id: deploy
-        
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
           url=$(vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }})
           echo "preview_url=$url" >> $GITHUB_OUTPUT
