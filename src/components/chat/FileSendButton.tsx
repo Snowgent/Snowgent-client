@@ -38,6 +38,26 @@ const FileSendButton = () => {
         },
       });
 
+      console.log('Upload response status:', response.status);
+      console.log('Upload response data:', response.data);
+      console.log('Response data type:', typeof response.data);
+      console.log('Response data keys:', Object.keys(response.data || {}));
+
+      // 응답 데이터 검증
+      if (!response.data) {
+        throw new Error('응답 데이터가 없습니다.');
+      }
+
+      if (typeof response.data === 'string') {
+        console.warn('응답이 JSON이 아닌 문자열입니다:', response.data);
+        throw new Error('서버 응답 형식이 올바르지 않습니다.');
+      }
+
+      if (!response.data.filename || !response.data.url) {
+        console.error('응답 데이터 형식 오류:', response.data);
+        throw new Error('응답에 filename 또는 url이 없습니다.');
+      }
+
       console.log('Upload success:', response.data);
       setUploadedFile(response.data);
       setUploadStatus(`업로드 성공! (${response.data.filename})`);
@@ -50,6 +70,8 @@ const FileSendButton = () => {
       console.error('Upload error:', error);
 
       if (axios.isAxiosError(error)) {
+        console.error('Axios error response:', error.response?.data);
+        console.error('Axios error status:', error.response?.status);
         const message =
           error.response?.data?.message || error.response?.statusText || error.message;
         const status = error.response?.status || '';
