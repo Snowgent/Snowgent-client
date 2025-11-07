@@ -1,5 +1,9 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/(.*)", "destination": "/index.html" },
+    {
+      "source": "/chat/:path*",
+      "destination": "https://backendbase.site/chat/:path*"
+    }
   ]
 }
