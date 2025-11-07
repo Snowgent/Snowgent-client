@@ -1,8 +1,8 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Onboarding from './pages/onboarding/Onboarding';
-import Chat from './pages/chat/Chat';
 import App from './App';
 import HomePage from './pages/HomePage';
+import ChatPageTest from './pages/chat/ChatPageTest';
 
 const router = createBrowserRouter([
   {
@@ -17,9 +17,10 @@ const router = createBrowserRouter([
         path: 'onboarding',
         element: <Onboarding />,
       },
+
       {
-        path: 'chat',
-        element: <Chat />,
+        path: 'test',
+        element: <ChatPageTest />,
       },
     ],
   },
