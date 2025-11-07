@@ -159,13 +159,17 @@ export default function ChatPageTest() {
   };
 
   return (
-    <>
+    <div className="flex h-screen flex-col">
       <Navigation />
-      <div className="flex h-full flex-col p-5">
+      <div className="flex flex-1 flex-col overflow-hidden p-5">
         {/* 메시지 목록 */}
-        <div className="mb-4 flex-1 overflow-y-auto">
-          {/* 파일 업로드 버튼 - 업로드 전에만 표시 */}
-          {!isFileUploaded && <FileSendButton onUploadSuccess={handleUploadSuccess} />}
+        {/* 파일 업로드 버튼 - 업로드 전에만 표시 */}
+        {!isFileUploaded && (
+          <div className="shrink-0">
+            <FileSendButton onUploadSuccess={handleUploadSuccess} />
+          </div>
+        )}
+        <div className="flex-1 overflow-y-auto pb-4">
           {messages.map((message) => (
             <div
               key={message.id}
@@ -185,7 +189,7 @@ export default function ChatPageTest() {
 
         {/* 입력창 - 업로드 후에만 표시 */}
         {isFileUploaded && (
-          <div className="mt-2 flex gap-2">
+          <div className="flex shrink-0 gap-2">
             <textarea
               ref={inputRef}
               value={input}
@@ -204,6 +208,6 @@ export default function ChatPageTest() {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }
