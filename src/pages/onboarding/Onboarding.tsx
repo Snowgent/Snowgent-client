@@ -10,7 +10,7 @@ import MultiSelect from '../../components/onboarding/MultiSelect';
 const Onboarding = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 5;
+  const totalSteps = 6;
 
   const handlePrev = () => {
     if (currentStep > 1) {
@@ -58,7 +58,7 @@ const Onboarding = () => {
           </div>
           <div className="h-2 w-full rounded-full bg-gray-200">
             <div
-              className="h-2 rounded-full bg-blue-500 transition-all duration-300"
+              className="h-2 rounded-full bg-[#0D2D84] transition-all duration-300"
               style={{ width: `${(currentStep / totalSteps) * 100}%` }}
             />
           </div>
