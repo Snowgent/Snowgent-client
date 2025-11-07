@@ -7,10 +7,13 @@ interface UploadResponse {
   url: string;
 }
 
-const FileSendButton = () => {
+interface FileSendButtonProps {
+  onUploadSuccess?: () => void;
+}
+
+const FileSendButton = ({ onUploadSuccess }: FileSendButtonProps) => {
   const [uploading, setUploading] = useState(false);
   const [uploadStatus, setUploadStatus] = useState<string | null>(null);
-  const [uploadedFile, setUploadedFile] = useState<UploadResponse | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,7 +27,6 @@ const FileSendButton = () => {
 
     setUploading(true);
     setUploadStatus(null);
-    setUploadedFile(null);
 
     try {
       const formData = new FormData();
@@ -38,48 +40,27 @@ const FileSendButton = () => {
         },
       });
 
-      console.log('=== 응답 정보 ===');
-      console.log('Status:', response.status);
-      console.log('Data:', response.data);
-      console.log('Data type:', typeof response.data);
-      console.log('Is null?', response.data === null);
-      console.log('Is undefined?', response.data === undefined);
-      console.log('Keys:', response.data ? Object.keys(response.data) : 'no data');
-      console.log('Stringified:', JSON.stringify(response.data));
+      console.log('Upload success:', response.data);
 
-      // 응답이 있으면 성공 처리
-      if (response.status === 200) {
-        const data = response.data;
+      // 업로드 성공 콜백 호출
+      onUploadSuccess?.();
 
-        // 데이터가 있으면 저장
-        if (data && typeof data === 'object') {
-          setUploadedFile({
-            filename: data.filename || file.name,
-            url: data.url || '',
-          });
-          setUploadStatus(`업로드 성공! (${data.filename || file.name})`);
-        } else {
-          // 데이터가 없어도 200이면 성공으로 간주
-          setUploadStatus('업로드 성공!');
-        }
-
-        // 파일 입력 초기화
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
-        }
+      // 파일 입력 초기화
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
       }
     } catch (error) {
       console.error('Upload error:', error);
 
       if (axios.isAxiosError(error)) {
-        console.error('Axios error response:', error.response?.data);
-        console.error('Axios error status:', error.response?.status);
         const message =
           error.response?.data?.message || error.response?.statusText || error.message;
         const status = error.response?.status || '';
         setUploadStatus(`업로드 실패${status ? ` (${status})` : ''}: ${message}`);
+      } else if (error instanceof Error) {
+        setUploadStatus(`에러: ${error.message}`);
       } else {
-        setUploadStatus(error instanceof Error ? error.message : '업로드 실패');
+        setUploadStatus('알 수 없는 에러가 발생했습니다.');
       }
     } finally {
       setUploading(false);
@@ -107,25 +88,7 @@ const FileSendButton = () => {
       >
         {uploading ? '업로드 중...' : '📎 CSV 파일 업로드'}
       </button>
-      {uploadStatus && (
-        <div className="flex flex-col gap-1">
-          <p
-            className={`text-sm ${uploadStatus.includes('성공') ? 'text-green-600' : 'text-red-600'}`}
-          >
-            {uploadStatus}
-          </p>
-          {uploadedFile && (
-            <a
-              href={uploadedFile.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-xs text-blue-500 underline hover:text-blue-700"
-            >
-              파일 보기
-            </a>
-          )}
-        </div>
-      )}
+      {uploadStatus && <p className="text-sm text-red-600">{uploadStatus}</p>}
     </div>
   );
 };
