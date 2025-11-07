@@ -1,0 +1,48 @@
+@import 'tailwindcss';
+
+@layer base {
+  * {
+    @apply box-border;
+  }
+
+  html {
+    @apply h-full overflow-x-hidden;
+    height: 100dvh;
+  }
+
+  body {
+    @apply m-0 h-full p-0;
+    @apply font-sans antialiased;
+    background-color: #f9f9f9;
+    overscroll-behavior: none;
+    touch-action: pan-y;
+  }
+
+  #root {
+    @apply h-full;
+  }
+}
+
+@layer components {
+  .mobile-container {
+    @apply mx-auto flex h-full w-full justify-center;
+    max-width: 480px;
+  }
+
+  .mobile-content {
+    @apply flex h-full w-full flex-col;
+    background-color: white;
+  }
+
+  .mobile-padding {
+    @apply px-4 py-4;
+  }
+
+  .safe-top {
+    padding-top: max(env(safe-area-inset-top), 1rem);
+  }
+
+  .safe-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom), 1rem);
+  }
+}
