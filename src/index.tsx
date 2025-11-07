@@ -2,6 +2,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Onboarding from './pages/onboarding/Onboarding';
 import Chat from './pages/chat/Chat';
 import App from './App';
+import Home from './pages/home';
 
 const router = createBrowserRouter([
   {
@@ -10,6 +11,10 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
+        element: <Home />,
+      },
+      {
+        path: 'onboarding',
         element: <Onboarding />,
       },
       {
