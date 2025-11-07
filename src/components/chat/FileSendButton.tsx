@@ -29,7 +29,11 @@ const FileSendButton = () => {
       const formData = new FormData();
       formData.append('file', file);
 
-      const uploadUrl = '/chat/upload';
+      // 개발환경
+      // const uploadUrl = '/chat/upload';
+
+      // 배포환경
+      const uploadUrl = 'https://backendbase.site/chat/upload';
       if (!uploadUrl) {
         throw new Error('업로드 URL이 설정되지 않았습니다.');
       }
