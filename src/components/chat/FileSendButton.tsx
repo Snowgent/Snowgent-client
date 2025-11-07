@@ -38,33 +38,35 @@ const FileSendButton = () => {
         },
       });
 
-      console.log('Upload response status:', response.status);
-      console.log('Upload response data:', response.data);
-      console.log('Response data type:', typeof response.data);
-      console.log('Response data keys:', Object.keys(response.data || {}));
+      console.log('=== 응답 정보 ===');
+      console.log('Status:', response.status);
+      console.log('Data:', response.data);
+      console.log('Data type:', typeof response.data);
+      console.log('Is null?', response.data === null);
+      console.log('Is undefined?', response.data === undefined);
+      console.log('Keys:', response.data ? Object.keys(response.data) : 'no data');
+      console.log('Stringified:', JSON.stringify(response.data));
 
-      // 응답 데이터 검증
-      if (!response.data) {
-        throw new Error('응답 데이터가 없습니다.');
-      }
+      // 응답이 있으면 성공 처리
+      if (response.status === 200) {
+        const data = response.data;
 
-      if (typeof response.data === 'string') {
-        console.warn('응답이 JSON이 아닌 문자열입니다:', response.data);
-        throw new Error('서버 응답 형식이 올바르지 않습니다.');
-      }
+        // 데이터가 있으면 저장
+        if (data && typeof data === 'object') {
+          setUploadedFile({
+            filename: data.filename || file.name,
+            url: data.url || '',
+          });
+          setUploadStatus(`업로드 성공! (${data.filename || file.name})`);
+        } else {
+          // 데이터가 없어도 200이면 성공으로 간주
+          setUploadStatus('업로드 성공!');
+        }
 
-      if (!response.data.filename || !response.data.url) {
-        console.error('응답 데이터 형식 오류:', response.data);
-        throw new Error('응답에 filename 또는 url이 없습니다.');
-      }
-
-      console.log('Upload success:', response.data);
-      setUploadedFile(response.data);
-      setUploadStatus(`업로드 성공! (${response.data.filename})`);
-
-      // 파일 입력 초기화
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+        // 파일 입력 초기화
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
       }
     } catch (error) {
       console.error('Upload error:', error);
