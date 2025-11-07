@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import logo from '/vite.svg';
 
-const Home = () => {
+const HomePage = () => {
   const navigate = useNavigate();
   return (
     <div className="flex h-full flex-col items-center justify-center gap-8">
@@ -17,4 +17,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default HomePage;
