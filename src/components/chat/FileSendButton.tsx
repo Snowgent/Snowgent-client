@@ -1,5 +1,6 @@
-import axios from 'axios';
 import { useRef, useState } from 'react';
+import { apiClient } from '../../api/api';
+import axios from 'axios';
 
 interface UploadResponse {
   filename: string;
@@ -29,22 +30,12 @@ const FileSendButton = () => {
       const formData = new FormData();
       formData.append('file', file);
 
-      // 개발환경
-      // const uploadUrl = '/chat/upload';
+      console.log('Uploading file:', file.name);
 
-      // 배포환경
-      const uploadUrl = 'https://backendbase.site/chat/upload';
-      if (!uploadUrl) {
-        throw new Error('업로드 URL이 설정되지 않았습니다.');
-      }
-
-      console.log('Uploading file:', file.name, 'to:', uploadUrl);
-
-      const response = await axios.post<UploadResponse>(uploadUrl, formData, {
+      const response = await apiClient.post<UploadResponse>('/chat/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-        withCredentials: false,
       });
 
       console.log('Upload success:', response.data);
