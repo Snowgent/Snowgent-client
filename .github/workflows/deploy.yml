@@ -1,0 +1,144 @@
+name: Deploy
+
+on:
+  push:
+    branches: ['develop', 'main']
+permissions:
+  contents: write
+
+concurrency:
+  group: prod-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  promote-and-deploy:
+    if: ${{ github.ref == 'refs/heads/develop' }}
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.promote.outputs.changed }}
+      new_sha: ${{ steps.promote.outputs.new_sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Promote develop → main (fast-forward only)
+        id: promote
+        env:
+          GH_USER_NAME: github-actions[bot]
+          GH_USER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          set -euo pipefail
+          git config user.name  "$GH_USER_NAME"
+          git config user.email "$GH_USER_EMAIL"
+
+          git fetch origin main develop
+
+          BEFORE="$(git rev-parse origin/main)"
+          git checkout -B main origin/main
+
+          git merge --ff-only origin/develop
+
+          AFTER="$(git rev-parse HEAD)"
+
+          if [ "$BEFORE" = "$AFTER" ]; then
+            echo "No changes to promote. main already up to date."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "new_sha=$AFTER" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git push origin main
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "new_sha=$AFTER" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        if: ${{ steps.promote.outputs.changed == 'true' }}
+        with:
+            node-version: 20
+            registry-url: 'https://registry.npmjs.org'
+      
+      - name: Force npmjs registry
+        if: ${{ steps.promote.outputs.changed == 'true' }}
+        run: |
+          npm config set registry https://registry.npmjs.org/
+          echo "registry=https://registry.npmjs.org/" > ~/.npmrc
+
+      - uses: pnpm/action-setup@v4
+        if: ${{ steps.promote.outputs.changed == 'true' }}
+        with:
+          version: 10
+          standalone: true
+
+          
+      - run: pnpm -v
+        if: ${{ steps.promote.outputs.changed == 'true' }}
+
+      - uses: actions/setup-node@v4
+        if: ${{ steps.promote.outputs.changed == 'true' }}
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          cache-dependency-path: 'pnpm-lock.yaml'
+
+
+      - name: Install Vercel CLI
+        if: ${{ steps.promote.outputs.changed == 'true' }}
+        run: npm i -g vercel@latest
+
+      - name: Pull Vercel Env (production)
+        if: ${{ steps.promote.outputs.changed == 'true' }}
+        env:
+          VERCEL_ORG_ID:     ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: vercel pull --yes --environment=production --token='${{ secrets.VERCEL_TOKEN }}'
+
+      - name: Build (prebuilt, prod)
+        if: ${{ steps.promote.outputs.changed == 'true' }}
+        run: vercel build --prod --token='${{ secrets.VERCEL_TOKEN }}'
+
+      - name: Deploy (prod)
+        if: ${{ steps.promote.outputs.changed == 'true' }}
+        id: deploy
+        run: |
+          url="$(vercel deploy --prebuilt --prod --token='${{ secrets.VERCEL_TOKEN }}')"
+          echo "::notice::Deployed $url"
+
+
+  deploy-on-main:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Force npmjs registry
+        run: |
+          npm config set registry https://registry.npmjs.org/
+          echo "registry=https://registry.npmjs.org/" > ~/.npmrc
+
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          standalone: true
+      - run: pnpm -v
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          cache-dependency-path: 'pnpm-lock.yaml'
+
+      - run: npm i -g vercel@latest
+      - name: Pull Vercel Env (production)
+        env:
+          VERCEL_ORG_ID:     ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: vercel pull --yes --environment=production --token='${{ secrets.VERCEL_TOKEN }}'
+      - name: Build (prebuilt, prod)
+        run: vercel build --prod --token='${{ secrets.VERCEL_TOKEN }}'
+      - name: Deploy (prod)
+        run: vercel deploy --prebuilt --prod --token='${{ secrets.VERCEL_TOKEN }}'
