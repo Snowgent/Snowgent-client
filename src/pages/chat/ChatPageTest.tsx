@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import Navigation from '../../components/Navigation';
 
 export default function ChatPageTest() {
   const [output, setOutput] = useState('');
@@ -6,6 +7,7 @@ export default function ChatPageTest() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
   const outputRef = useRef<HTMLTextAreaElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const mountedRef = useRef(false);
 
@@ -18,11 +20,9 @@ export default function ChatPageTest() {
 
     socket.onopen = () => {
       console.log('Connected');
-      setOutput((prev) => prev + 'Connected\n');
     };
 
     socket.onmessage = (event) => {
-      // bedrock stream done 메시지는 콘솔에만 표시
       if (event.data.includes('[bedrock stream done]')) {
         console.log('Stream done:', event.data);
         return;
@@ -32,7 +32,7 @@ export default function ChatPageTest() {
         const json = JSON.parse(event.data);
         if (json.type === 'session') {
           setSessionId(json.session_id);
-          setOutput((prev) => prev + `[세션 ID: ${json.session_id}]\n`);
+          console.log(`${sessionId}`);
           return;
         }
       } catch {
@@ -63,6 +63,14 @@ export default function ChatPageTest() {
     }
   }, [output]);
 
+  // 입력창 자동 높이 조절
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.style.height = 'auto';
+      inputRef.current.style.height = inputRef.current.scrollHeight + 'px';
+    }
+  }, [input]);
+
   const sendMessage = () => {
     const text = input.trim();
     if (!text || !socketRef.current) return;
@@ -75,58 +83,51 @@ export default function ChatPageTest() {
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
       sendMessage();
     }
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
-      <h3>Chat Test</h3>
-      {sessionId && <p style={{ color: '#666' }}>세션 ID: {sessionId}</p>}
-      <textarea
-        ref={outputRef}
-        value={output}
-        readOnly
-        rows={15}
-        style={{
-          width: '100%',
-          marginBottom: '10px',
-          padding: '10px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-          fontFamily: 'monospace',
-        }}
-      />
-      <br />
-      <div style={{ display: 'flex', gap: '10px' }}>
-        <input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="메시지를 입력하세요"
+    <>
+      <Navigation />
+      <div className="flex h-full flex-col p-5">
+        <textarea
+          ref={outputRef}
+          value={output}
+          readOnly
+          rows={15}
           style={{
-            flex: 1,
-            padding: '8px',
+            width: '100%',
+            marginBottom: '10px',
+            padding: '10px',
             border: '1px solid #ccc',
             borderRadius: '4px',
+            fontFamily: 'monospace',
           }}
         />
-        <button
-          onClick={sendMessage}
-          style={{
-            padding: '8px 20px',
-            background: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-          }}
-        >
-          보내기
-        </button>
+        <div className="flex-1"></div>
+
+        <div className="flex gap-2">
+          <textarea
+            ref={inputRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyPress}
+            placeholder="메세지를 입력하세요"
+            rows={1}
+            className="max-h-20 flex-5 resize-none overflow-hidden rounded-xl border px-3 py-4 text-xl outline-none"
+          />
+          <button
+            onClick={sendMessage}
+            className="flex-1 rounded-xl bg-[#0D2D84] text-lg text-white"
+          >
+            ▶
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
