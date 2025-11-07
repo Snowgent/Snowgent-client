@@ -84,11 +84,11 @@ const FileSendButton = ({ onUploadSuccess }: FileSendButtonProps) => {
       <button
         onClick={handleButtonClick}
         disabled={uploading}
-        className="rounded-md bg-blue-500 p-2 text-white transition-colors hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-gray-400"
+        className="my-2 w-fit rounded-md bg-blue-500 p-4 text-white transition-colors hover:bg-blue-600 disabled:cursor-not-allowed disabled:bg-gray-400"
       >
-        {uploading ? '업로드 중...' : '📎 CSV 파일 업로드'}
+        {uploading ? '업로드 중...' : '📎파일 업로드'}
       </button>
-      {uploadStatus && <p className="text-sm text-red-600">{uploadStatus}</p>}
+      {uploadStatus && <p className="text-sm text-red-600">dd{uploadStatus}</p>}
     </div>
   );
 };

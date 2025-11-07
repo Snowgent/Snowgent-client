@@ -164,6 +164,8 @@ export default function ChatPageTest() {
       <div className="flex h-full flex-col p-5">
         {/* 메시지 목록 */}
         <div className="mb-4 flex-1 overflow-y-auto">
+          {/* 파일 업로드 버튼 - 업로드 전에만 표시 */}
+          {!isFileUploaded && <FileSendButton onUploadSuccess={handleUploadSuccess} />}
           {messages.map((message) => (
             <div
               key={message.id}
@@ -180,9 +182,6 @@ export default function ChatPageTest() {
           ))}
           <div ref={messagesEndRef} />
         </div>
-
-        {/* 파일 업로드 버튼 - 업로드 전에만 표시 */}
-        {!isFileUploaded && <FileSendButton onUploadSuccess={handleUploadSuccess} />}
 
         {/* 입력창 - 업로드 후에만 표시 */}
         {isFileUploaded && (
