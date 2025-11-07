@@ -9,9 +9,16 @@ interface Message {
 }
 
 export default function ChatPageTest() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: 'initial',
+      role: 'assistant',
+      content: '안녕하세요! Snowgent입니다❄️ \n재고 데이터 파일을 업로드 해주세요',
+    },
+  ]);
   const [input, setInput] = useState('');
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [isFileUploaded, setIsFileUploaded] = useState(false);
   const socketRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -40,6 +47,7 @@ export default function ChatPageTest() {
         if (json.type === 'session') {
           setSessionId(json.session_id);
           console.log(`${sessionId}`);
+          console.log(`Session ID: ${json.session_id}`);
           return;
         }
       } catch {
@@ -108,6 +116,18 @@ export default function ChatPageTest() {
     }
   }, [input]);
 
+  const handleUploadSuccess = () => {
+    setIsFileUploaded(true);
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: '업로드 완료되었습니다. 재고 관리 채팅을 시작하세요',
+      },
+    ]);
+  };
+
   const sendMessage = () => {
     const text = input.trim();
     if (!text || !socketRef.current) return;
@@ -161,27 +181,29 @@ export default function ChatPageTest() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* 파일 업로드 버튼 */}
-        <FileSendButton />
+        {/* 파일 업로드 버튼 - 업로드 전에만 표시 */}
+        {!isFileUploaded && <FileSendButton onUploadSuccess={handleUploadSuccess} />}
 
-        {/* 입력창 */}
-        <div className="mt-2 flex gap-2">
-          <textarea
-            ref={inputRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyPress}
-            placeholder="메세지를 입력하세요"
-            rows={1}
-            className="max-h-20 flex-1 resize-none overflow-hidden rounded-xl border px-3 py-4 text-xl outline-none focus:border-blue-500"
-          />
-          <button
-            onClick={sendMessage}
-            className="rounded-xl bg-[#0D2D84] px-6 text-lg text-white hover:bg-[#0a2366]"
-          >
-            ▶
-          </button>
-        </div>
+        {/* 입력창 - 업로드 후에만 표시 */}
+        {isFileUploaded && (
+          <div className="mt-2 flex gap-2">
+            <textarea
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyPress}
+              placeholder="메시지를 입력하세요"
+              rows={1}
+              className="max-h-20 flex-1 resize-none overflow-hidden rounded-xl border px-3 py-4 text-xl outline-none focus:border-blue-500"
+            />
+            <button
+              onClick={sendMessage}
+              className="rounded-xl bg-[#0D2D84] px-6 text-lg text-white hover:bg-[#0a2366]"
+            >
+              ▶
+            </button>
+          </div>
+        )}
       </div>
     </>
   );
