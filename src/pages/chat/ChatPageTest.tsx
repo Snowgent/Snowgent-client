@@ -13,7 +13,8 @@ export default function ChatPageTest() {
     {
       id: 'initial',
       role: 'assistant',
-      content: '안녕하세요! Snowgent입니다❄️ \n재고 데이터 파일을 업로드 해주세요',
+      content:
+        '안녕하세요! 청파프레시 사장님\nSnowgent입니다❄️ \n재고 데이터 파일을 업로드 해주세요',
     },
   ]);
   const [input, setInput] = useState('');

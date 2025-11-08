@@ -85,7 +85,7 @@ const FileSendButton = ({ onUploadSuccess }: FileSendButtonProps) => {
       <button
         onClick={handleButtonClick}
         disabled={uploading}
-        className="my-2 w-fit rounded-md bg-[#0D2D84] p-4 text-white transition-colors hover:bg-[#0a2366] disabled:cursor-not-allowed disabled:bg-gray-400"
+        className="my-2 w-fit rounded-md bg-[#0d2d84a2] p-4 text-white transition-colors hover:bg-[#0a2366] disabled:cursor-not-allowed disabled:bg-gray-400"
       >
         {uploading ? '업로드 중...' : '📎파일 업로드'}
       </button>
