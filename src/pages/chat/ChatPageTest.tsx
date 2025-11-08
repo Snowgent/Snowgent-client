@@ -123,7 +123,7 @@ export default function ChatPageTest() {
       {
         id: Date.now().toString(),
         role: 'assistant',
-        content: '업로드 완료되었습니다. 재고 관리 채팅을 시작하세요',
+        content: '재고 파일이 업로드 완료되었습니다. \n 채팅을 시작해보세요 !',
       },
     ]);
   };

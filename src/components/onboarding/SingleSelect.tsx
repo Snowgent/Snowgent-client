@@ -1,11 +1,11 @@
 const defaultOptions = [
-  { id: 1, name: 'option1' },
-  { id: 2, name: 'option2' },
-  { id: 3, name: 'option3' },
-  { id: 4, name: 'option4' },
-  { id: 5, name: 'option5' },
-  { id: 6, name: 'option6' },
-  { id: 7, name: 'option7' },
+  { id: 1, name: '식품 소분업' },
+  { id: 2, name: '기타식품판매업' },
+  { id: 3, name: '일반음식점' },
+  { id: 4, name: '휴게음식점' },
+  { id: 5, name: '제과점' },
+  { id: 6, name: '단란주점/유흥주점' },
+  { id: 7, name: '즉석판매제조·가공업' },
 ];
 
 const SingleSelect = ({ title }: { title: string }) => {

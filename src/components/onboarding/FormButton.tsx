@@ -1,6 +1,6 @@
 const FormButton = ({ type, onClick }: { type: string; onClick: () => void }) => {
   const buttonStyle =
-    'bg-[#1d4ed8] w-full text-white py-3 rounded-lg text-center font-medium cursor-pointer';
+    'bg-[#0D2D84] w-full text-white py-3 rounded-lg text-center font-medium cursor-pointer';
 
   const grayButtonStyle =
     'bg-gray-300 w-full text-gray-700 py-3 rounded-lg text-center font-medium cursor-pointer';

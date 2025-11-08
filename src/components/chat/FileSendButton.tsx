@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react';
-import { apiClient } from '../../api/api';
 import axios from 'axios';
 
 interface UploadResponse {
@@ -32,9 +31,11 @@ const FileSendButton = ({ onUploadSuccess }: FileSendButtonProps) => {
       const formData = new FormData();
       formData.append('file', file);
 
+      const uploadUrl = import.meta.env.VITE_UPLOAD_URL;
+      console.log('Uploading to:', uploadUrl);
       console.log('Uploading file:', file.name);
 
-      const response = await apiClient.post<UploadResponse>('/chat/upload', formData, {
+      const response = await axios.post<UploadResponse>(uploadUrl, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
